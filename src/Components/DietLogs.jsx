@@ -5,7 +5,6 @@ import {
   onAuthStateChanged
 } from "firebase/auth";
 import { doc, getDocs, setDoc, collection, addDoc, serverTimestamp} from 'firebase/firestore'
-import posts from '../assets/data/data'
 import AddDietComponent from './AddDiet'
 import {db} from '../firebase'
 

@@ -1,8 +1,5 @@
-import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import { auth, signInWithEmailAndPassword, signInWithGoogle } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { logInWithEmailAndPassword } from '../firebase';
 import { UserAuth } from '../context/AuthContext';
 

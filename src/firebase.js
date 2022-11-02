@@ -94,9 +94,9 @@ const logout = () => {
   });
 };
 
+export default storage;
 export {
   app,
-  storage,
   auth,
   db,
   signInWithGoogle,
