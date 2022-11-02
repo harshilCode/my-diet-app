@@ -8,8 +8,6 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  // const [user, loading, error] = useAuthState(auth);
-  const { user, logout } = UserAuth();
   const { signIn } = UserAuth();
   const navigate = useNavigate();
 
@@ -29,7 +27,7 @@ export default function Login() {
     })
     .catch((err) => {
       console.error(err);
-      alert(err.message);
+      // alert("incorrect username or password");
     })
   }
 
@@ -85,6 +83,11 @@ export default function Login() {
                   />
                 </div>
               </div>
+              {
+                error
+                ? <p className="text-red-600">Invalid username or password</p>
+                : null
+              }
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center">

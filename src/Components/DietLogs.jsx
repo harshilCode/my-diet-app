@@ -1,10 +1,9 @@
-import React from 'react'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   getAuth,
   onAuthStateChanged
 } from "firebase/auth";
-import { doc, getDocs, setDoc, collection, addDoc, serverTimestamp} from 'firebase/firestore'
+import { getDocs, collection } from 'firebase/firestore'
 import AddDietComponent from './AddDiet'
 import {db} from '../firebase'
 
@@ -25,7 +24,6 @@ function DietLogs({ user }) {
   
   const getDietLogs = async (userEmail) => {
     if (userEmail) {
-      // const docRef = doc(db, "diet-logs");
       const querySnapshot = await getDocs(collection(db, "diet-logs"));
       const dietlogsData = [];
 
@@ -69,6 +67,9 @@ function DietLogs({ user }) {
           <p className="mx-auto mt-3 text-xl text-gray-500 sm:mt-4">
             All your groups diet logs.
           </p>
+          <i className="mx-auto mt-3 text-sm text-gray-500 sm:mt-4">
+            coming soon: filters to sort dy date and person
+          </i>
         </div>
         <div className="mx-auto mt-12 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-3">
           {
@@ -76,7 +77,7 @@ function DietLogs({ user }) {
             ? items.map((post, index) => (
             <div key={index} className="flex flex-col overflow-hidden rounded-lg shadow-lg">
               <div className="flex-shrink-0">
-                <div className="h-1 w-full object-cover"></div>
+                <div className="h-2 w-full object-cover" style={{backgroundColor: `${post.color}`}}></div>
               </div>
 
               <div className="pl-6 pt-3 pr-6 flex items-center">

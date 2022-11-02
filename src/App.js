@@ -4,7 +4,7 @@ import {
   getAuth,
   onAuthStateChanged
 } from "firebase/auth";
-import { doc, getDoc, setDoc, collection, addDoc, serverTimestamp} from 'firebase/firestore'
+import { doc, getDoc, setDoc, serverTimestamp} from 'firebase/firestore'
 
 import {db} from './firebase'
 import { AuthContextProvider } from './context/AuthContext';
@@ -26,7 +26,8 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      getUser(currentUser.email);
+      if (currentUser)
+        getUser(currentUser?.email);
     });
     return () => {
       unsubscribe();

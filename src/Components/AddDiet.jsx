@@ -1,6 +1,6 @@
 import React, { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { doc, getDoc, setDoc, collection, addDoc, serverTimestamp} from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp} from 'firebase/firestore'
 import {db} from '../firebase'
 import RandomRgbColor from './utils/RandomColor'
 
@@ -10,11 +10,17 @@ function AddDietComponent({ user, openAddDietModal, setOpenAddDietModal, getDiet
   const cancelButtonRef = useRef(null)
 
   const handleKeyDown = (e) => {
+    if (!item) return;
     if (e.key === 'Enter') {
       const val = e.target.value
       setItems(current => [...current, val])
       setItem('')
     }
+  }
+  const handleAddItem = () => {
+      if (!item) return;
+      setItems(current => [...current, item])
+      setItem('')
   }
 
   const handleItemDelete = (index) => {
@@ -35,11 +41,11 @@ function AddDietComponent({ user, openAddDietModal, setOpenAddDietModal, getDiet
         },
         color: RandomRgbColor()
       };
-      const res = await addDoc(collection(db, "diet-logs"), data);
+      await addDoc(collection(db, "diet-logs"), data);
     } catch (err) {
       alert(err)
     }
-    getDietLogs();
+    getDietLogs(user.email);
     setOpenAddDietModal(false);
   }
 
@@ -85,16 +91,24 @@ function AddDietComponent({ user, openAddDietModal, setOpenAddDietModal, getDiet
                           (Click enter to add items)
                         </i>
                       </label>
-                      <input
-                        type="text"
-                        name="item"
-                        placeholder='Dal and rice'
-                        value={item}
-                        onChange={(e) => setItem(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        id="item"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
+                      <div className="flex justify-between">
+                        <input
+                          type="text"
+                          name="item"
+                          placeholder='Dal and rice'
+                          value={item}
+                          onChange={(e) => setItem(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          id="item"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                        <button
+                          onClick={() => handleAddItem(true)}
+                          type="button"
+                          className="ml-3 w-16 inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            Add
+                        </button>
+                      </div>
                     </div>
 
                     <div className="mt-2">
@@ -118,13 +132,23 @@ function AddDietComponent({ user, openAddDietModal, setOpenAddDietModal, getDiet
 
                 {/* Action buttons */}
                 <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-                  <button
-                    type="button"
-                    className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:col-start-2 sm:text-sm"
-                    onClick={() => saveData()}
-                  >
-                    Save
-                  </button>
+                  {
+                    items.length === 0
+                    ? <button
+                        type="button"
+                        className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-400 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:col-start-2 sm:text-sm"
+                        disabled={true}
+                      >
+                        Save
+                      </button>
+                    : <button
+                        type="button"
+                        className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:col-start-2 sm:text-sm"
+                        onClick={() => saveData()}
+                      >
+                        Save
+                      </button>
+                  }
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:col-start-1 sm:mt-0 sm:text-sm"
