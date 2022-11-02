@@ -1,17 +1,22 @@
 import React from 'react'
-import SidebarComponent from './Sidebar';
+import SidebarComponent from './MainComponent';
+import {
+  getAuth,
+  onAuthStateChanged
+} from "firebase/auth";
+import {db} from '../firebase'
+
+import { doc, getDoc, setDoc, collection, addDoc, serverTimestamp} from 'firebase/firestore'
+import { useEffect } from 'react';
+import { useState } from 'react';
+import { UserAuth } from '../context/AuthContext';
 
 function Dashboard() {
-  // const navigate = useNavigate();
-  // const handle = () => {
-  //   logout();
-  //   navigate("/");
-  // }
+  
+  
   return (
     <div>
-      <SidebarComponent />
-
-      {/* <button onClick={handle}>Sign out</button> */}
+      Dashboard
     </div>
   )
 }

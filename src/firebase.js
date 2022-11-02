@@ -16,14 +16,17 @@ import {
   addDoc
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { useNavigate } from "react-router-dom"
+import { getStorage } from "firebase/storage";
 import { firebaseConfig } from './config';
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 const googleProvider = new GoogleAuthProvider();
+
 const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
@@ -45,8 +48,10 @@ const signInWithGoogle = async () => {
 }
 
 const logInWithEmailAndPassword = async (email, password) => {
+  return await signInWithEmailAndPassword(auth, email, password);
   try {
-    await signInWithEmailAndPassword(auth, email, password);
+    const user = await signInWithEmailAndPassword(auth, email, password);
+    sessionStorage.setItem('userEmail', user.email);
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -80,14 +85,18 @@ const sendPasswordReset = async (email) => {
 };
 
 const logout = () => {
+
   signOut(auth).then(() => {
-    console.log('signed out')
+    let navigate = useNavigate();
+    navigate('/')
   }).catch((error) => {
-    console.log('error signing out')
+    console.error(error)
   });
 };
 
 export {
+  app,
+  storage,
   auth,
   db,
   signInWithGoogle,

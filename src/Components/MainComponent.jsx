@@ -1,12 +1,9 @@
 import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
-import { useNavigate } from "react-router-dom"
-import { logout } from '../firebase'
+import { useNavigate, Outlet, Link } from "react-router-dom"
 import {
   Bars3BottomLeftIcon,
   BellIcon,
-  CalendarIcon,
-  ChartBarIcon,
   FolderIcon,
   HomeIcon,
   InboxIcon,
@@ -14,44 +11,36 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { UserAuth } from '../context/AuthContext';
 
 const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-  { name: 'Diet logs', href: '#', icon: FolderIcon, current: false },
-  { name: 'Groups', href: '#', icon: UsersIcon, current: false },
-  { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
-  { name: 'Recipes', href: '#', icon: InboxIcon, current: false },
+  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, current: true },
+  { name: 'Diet logs', href: '/diet-logs', icon: FolderIcon, current: false },
+  { name: 'Groups', href: '/groups', icon: UsersIcon, current: false },
+  // { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
+  { name: 'Recipes', href: '/recipes', icon: InboxIcon, current: false },
 ]
-const userNavigation = [
-  { name: 'Your Profile', func: '#' },
-  { name: 'Settings', func: '#' },
-  { name: 'Sign out', func: '' },
-]
-
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function SidebarComponent() {
+export default function MainComponent({ user }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { logout } = UserAuth();
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    logout();
-    navigate("/");
+  const handleSignOut = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-100">
-        <body class="h-full">
-        ```
-      */}
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog as="div" className="relative z-40 md:hidden" onClose={setSidebarOpen}>
@@ -108,9 +97,9 @@ export default function SidebarComponent() {
                   <div className="mt-5 h-0 flex-1 overflow-y-auto">
                     <nav className="space-y-1 px-2">
                       {navigation.map((item) => (
-                        <a
+                        <Link
                           key={item.name}
-                          href={item.href}
+                          to={item.href}
                           className={classNames(
                             item.current
                               ? 'bg-gray-900 text-white'
@@ -126,7 +115,7 @@ export default function SidebarComponent() {
                             aria-hidden="true"
                           />
                           {item.name}
-                        </a>
+                        </Link>
                       ))}
                     </nav>
                   </div>
@@ -153,9 +142,9 @@ export default function SidebarComponent() {
             <div className="flex flex-1 flex-col overflow-y-auto">
               <nav className="flex-1 space-y-1 px-2 py-4">
                 {navigation.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.href}
                     className={classNames(
                       item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                       'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
@@ -169,7 +158,7 @@ export default function SidebarComponent() {
                       aria-hidden="true"
                     />
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </div>
@@ -219,11 +208,18 @@ export default function SidebarComponent() {
                   <div>
                     <Menu.Button className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                       <span className="sr-only">Open user menu</span>
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt=""
-                      />
+                      {
+                        user.url
+                        ? <img
+                            className="h-8 w-8 rounded-full"
+                            src={user.url}
+                            alt="Profile pic"
+                          />
+                        : <span className="h-12 w-12 overflow-hidden rounded-full bg-gray-100">
+                        <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg> </span>
+                      }
                     </Menu.Button>
                   </div>
                   <Transition
@@ -238,7 +234,7 @@ export default function SidebarComponent() {
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <Menu.Item>
                           {({ active }) => (
-                            <button className={classNames(
+                            <button onClick={() => navigate("/profile")} className={classNames(
                                   'w-full',
                                   active ? 'bg-gray-100' : '',
                                   'block px-4 py-2 text-sm text-gray-700')}>Your Profile</button>
@@ -269,14 +265,16 @@ export default function SidebarComponent() {
 
           <main className="flex-1">
             <div className="py-6">
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+              {/* <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
                 <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-              </div>
+              </div> */}
               <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+                {/* <Profile user={user}/> */}
+                <Outlet />
                 {/* Replace with your content */}
-                <div className="py-4">
+                {/* <div className="py-4">
                   <div className="h-96 rounded-lg border-4 border-dashed border-gray-200" />
-                </div>
+                </div> */}
                 {/* /End replace */}
               </div>
             </div>
