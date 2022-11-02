@@ -1,14 +1,16 @@
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useState } from 'react'
-import { useEffect } from 'react'
-import { db } from '../firebase'
-import { doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp} from 'firebase/firestore'
-import storage from "../firebase"
+import { useState, useEffect } from 'react'
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { doc, getDoc, updateDoc, serverTimestamp} from 'firebase/firestore'
 import {
   ref,
   uploadBytesResumable,
   getDownloadURL 
 } from "firebase/storage";
+import storage from "../firebase"
+import { db } from '../firebase'
 
 export default function Profile({ user }) {
 
@@ -20,6 +22,7 @@ export default function Profile({ user }) {
   const [percent, setPercent] = useState(0);
   const [file, setFile] = useState('')
   const auth = getAuth();
+  const notify = () => toast("Saved!");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -52,9 +55,10 @@ export default function Profile({ user }) {
       firstName: firstName,
       lastName: lastName,
       about: about,
-      url: photo
+      url: photo ? photo : ""
     }
     await updateDoc(doc(db, "users", email), data);
+    notify()
   }
 
   // Handles input change event and updates state
@@ -207,7 +211,7 @@ export default function Profile({ user }) {
               <p className="mt-2 text-sm text-gray-500">Write a few sentences about yourself.</p>
             </div>
 
-            <div className="sm:col-span-3">
+            {/* <div className="sm:col-span-3">
               <label htmlFor="country" className="block text-sm font-medium text-gray-700">
                 Country
               </label>
@@ -223,9 +227,9 @@ export default function Profile({ user }) {
                   <option>India</option>
                 </select>
               </div>
-            </div>
+            </div> */}
 
-            <div className="sm:col-span-6">
+            {/* <div className="sm:col-span-6">
               <label htmlFor="street-address" className="block text-sm font-medium text-gray-700">
                 Street address
               </label>
@@ -238,9 +242,9 @@ export default function Profile({ user }) {
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-            </div>
+            </div> */}
 
-            <div className="sm:col-span-2">
+            {/* <div className="sm:col-span-2">
               <label htmlFor="city" className="block text-sm font-medium text-gray-700">
                 City
               </label>
@@ -253,9 +257,9 @@ export default function Profile({ user }) {
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-            </div>
+            </div> */}
 
-            <div className="sm:col-span-2">
+            {/* <div className="sm:col-span-2">
               <label htmlFor="region" className="block text-sm font-medium text-gray-700">
                 State / Province
               </label>
@@ -268,9 +272,9 @@ export default function Profile({ user }) {
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-            </div>
+            </div> */}
 
-            <div className="sm:col-span-2">
+            {/* <div className="sm:col-span-2">
               <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700">
                 ZIP / Postal code
               </label>
@@ -283,18 +287,18 @@ export default function Profile({ user }) {
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
-        <div className="pt-8">
-          <div>
+        {/* <div className="pt-8"> */}
+          {/* <div>
             <h3 className="text-lg font-medium leading-6 text-gray-900">Notifications</h3>
             <p className="mt-1 text-sm text-gray-500">
               We'll always let you know about important changes, but you pick what else you want to hear about.
             </p>
-          </div>
-          <div className="mt-6">
+          </div> */}
+          {/* <div className="mt-6">
             <fieldset>
               <legend className="sr-only">By Email</legend>
               <div className="text-base font-medium text-gray-900" aria-hidden="true">
@@ -390,20 +394,17 @@ export default function Profile({ user }) {
                 </div>
               </div>
             </fieldset>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
       </div>
 
-      <div className="pt-5">
+      <ToastContainer />
+
+      <div className="pt-5 pb-3 sticky bottom-0 z-10 bg-white ">
         <div className="flex justify-end">
           <button
-            type="button"
-            className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Cancel
-          </button>
-          <button
             type="submit"
+            onClick={(e) => updateUser(e)}
             className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             Save
