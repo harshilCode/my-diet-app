@@ -34,8 +34,8 @@ export default function MainComponent({ user }) {
     try {
       await logout();
       navigate('/');
-    } catch (e) {
-      console.log(e.message);
+    } catch (err) {
+      console.log(err.message);
     }
   }
 
