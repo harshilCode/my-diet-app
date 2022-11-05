@@ -3,15 +3,21 @@ import {
   getAuth,
   onAuthStateChanged
 } from "firebase/auth";
-import { getDocs, collection } from 'firebase/firestore'
+import { TrashIcon as TrashIconOutline } from '@heroicons/react/24/outline'
+import { doc, deleteDoc, orderBy, query, getDocs, collection } from 'firebase/firestore'
+import { ToastContainer, toast } from 'react-toastify';
 import AddDietComponent from './AddDiet'
+import DeleteConfirmation from './common/DeleteConfirmation'
 import {db} from '../firebase'
 
 function DietLogs({ user }) {
   const [openAddDietModal, setOpenAddDietModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedLog, setSelectedLog] = useState({});
   const [items, setItems] = useState([]);
   const auth = getAuth();
-  
+  const successNotify = () => toast("Successfully deleted!");
+  const errorNotify = () => toast("Error occurred, please try again!");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -24,12 +30,41 @@ function DietLogs({ user }) {
   
   const getDietLogs = async (userEmail) => {
     if (userEmail) {
-      const querySnapshot = await getDocs(collection(db, "diet-logs"));
+      const dietLogs = collection(db, "diet-logs");
+      const q = query(dietLogs, orderBy("created", "desc"));
+      const querySnapshot = await getDocs(q);
+
       const dietlogsData = [];
 
       querySnapshot.forEach((doc) => dietlogsData.push({ ...doc.data(), id: doc.id, date: doc.data().created.toDate().toDateString() }));
       setItems(dietlogsData)
     }
+  }
+
+  const getUserLogs = async (log) => {
+    if (log) {
+      const userLogs = items.filter(log => log.user.email == user.email)
+      setItems(userLogs)
+    } else {
+      getDietLogs()
+    }
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "diet-logs", id))
+      successNotify()
+      getDietLogs(user.email)
+    } catch (err) {
+      errorNotify()
+    }
+
+    if (openDeleteModal) setOpenDeleteModal(false)
+  }
+
+  const getDeleteModal = (post) => {
+    setOpenDeleteModal(true)
+    setSelectedLog(post)
   }
 
   return (
@@ -55,12 +90,6 @@ function DietLogs({ user }) {
                 openAddDietModal={openAddDietModal}
                 setOpenAddDietModal={setOpenAddDietModal}
                 getDietLogs={getDietLogs}/>
-              // <ModalComponent
-              //     closeModal={closeModal}
-              //     children={}
-              //     title="Add Diet information"
-              //     user={user}
-              //     saveData={saveData}/>
               : null
             }
           </div>
@@ -71,44 +100,72 @@ function DietLogs({ user }) {
             coming soon: filters to sort dy date and person
           </i>
         </div>
+
+        {/* <div>
+          <MultiSelect dietLogs={items} getUserLogs={getUserLogs}/>
+        </div> */}
+
         <div className="mx-auto mt-12 grid max-w-lg gap-5 lg:max-w-none lg:grid-cols-3">
           {
             items.length > 0
             ? items.map((post, index) => (
             <div key={index} className="flex flex-col overflow-hidden rounded-lg shadow-lg">
+              {/* Top border */}
               <div className="flex-shrink-0">
                 <div className="h-2 w-full object-cover" style={{backgroundColor: `${post.color}`}}></div>
               </div>
 
-              <div className="pl-6 pt-3 pr-6 flex items-center">
-                <div className="flex-shrink-0">
-                  {/* <a href={post.author.href}> */}
-                    <span className="sr-only">{post.user.firstName} {post.user.lastName}</span>
-                    <img className="h-10 w-10 rounded-full" src={post.user.profileImageUrl} alt="" />
-                  {/* </a> */}
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900">
-                    {/* <a href={post.author.href} className="hover:underline"> */}
+              <div className="pl-6 pt-3 pr-6 flex items-center justify-between">
+                {/* Profile image */}
+                <div className="flex flex-shrink-0">
+                  <span className="sr-only">{post.user.firstName} {post.user.lastName}</span>
+                  <img className="h-10 w-10 rounded-full" src={post.user.profileImageUrl} alt="" />
+                  <div className="ml-3">
+                    {/* Name */}
+                    <p className="text-sm font-medium text-gray-900">
                       {post.user.firstName} {post.user.lastName}
-                    {/* </a> */}
-                  </p>
-                  <div className="flex space-x-1 text-sm text-gray-500">
-                    <time dateTime={post.date}>{post.date}</time>
-                    <p>{post.user.created}</p>
+                    </p>
+                    {/* Date */}
+                    <div className="flex space-x-1 text-sm text-gray-500">
+                      <time dateTime={post.date}>{post.date}</time>
+                      <p>{post.user.created}</p>
+                    </div>
                   </div>
                 </div>
+                {/* Delete icon */}
+                
+                <ToastContainer />
+                {
+                  user.email === post.user.email
+                  ? <div>
+                      <button
+                        type="button"
+                        onClick={() => getDeleteModal(post)}
+                        className="inline-flex items-center rounded-full border border-transparent bg-white p-2 text-red-400 shadow-sm hover:bg-red-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      >
+                        <TrashIconOutline className="h-5 w-5" aria-hidden="true" />
+                      </button>
+                      {
+                        openDeleteModal && post.id === selectedLog?.id
+                        ? <DeleteConfirmation
+                            title="Confirm delete"
+                            message="Are you sure you want to delete this log?"
+                            openDeleteModal={openDeleteModal}
+                            setOpenDeleteModal={setOpenDeleteModal}
+                            handleDelete={() => handleDelete(post.id)}
+                            id={post.id}/>
+                        : null
+                      }
+                    </div>
+                  : null
+                }
               </div>
               <div className="flex flex-1 flex-col justify-between bg-white p-6">
                 <div className="flex-1">
-                  {/* <a href={post.href} className="mt-2 block"> */}
-                    {/* <p className="text-xl font-semibold text-gray-900">{post.title}</p>
-                    <p className="mt-3 text-base text-gray-500">{post.description}</p> */}
+                  {/* Items list */}
                     { post.items.map( (i, idx) => (
                       <div key={idx} className="mr-3 mb-3 inline-flex items-center rounded-md border border-transparent bg-indigo-100 px-3 py-2 text-sm font-medium leading-4 text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">{i}</div>
                     ))}
-                    
-                  {/* </a> */}
                 </div>
               </div>
             </div>

@@ -18,9 +18,8 @@ export default function Login() {
     try {
       await signIn(email, password)
       navigate('/dashboard')
-    } catch (e) {
-      setError(e.message)
-      console.log(e.message)
+    } catch (err) {
+      setError(err.message)
     }
     logInWithEmailAndPassword(email, password).then(user => {
       sessionStorage.setItem('userEmail', user.user.auth.currentUser.email);
