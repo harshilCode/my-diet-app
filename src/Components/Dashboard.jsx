@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 // import {
 //   getAuth,
 //   onAuthStateChanged
@@ -11,13 +11,7 @@ import React from 'react'
 // import { UserAuth } from '../context/AuthContext';
 
 function Dashboard() {
-  
-  
-  return (
-    <div>
-      Dashboard
-    </div>
-  )
+  return <div>Dashboard</div>;
 }
 
-export default Dashboard
+export default Dashboard;

@@ -1,26 +1,21 @@
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useState, useEffect } from 'react'
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useState, useEffect } from "react";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { doc, getDoc, updateDoc, serverTimestamp} from 'firebase/firestore'
-import {
-  ref,
-  uploadBytesResumable,
-  getDownloadURL 
-} from "firebase/storage";
-import storage from "../firebase"
-import { db } from '../firebase'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import storage from "../firebase";
+import { db } from "../firebase";
 
 export default function Profile({ user }) {
-
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [about, setAbout] = useState('');
-  const [photo, setPhoto] = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [about, setAbout] = useState("");
+  const [photo, setPhoto] = useState("");
   const [percent, setPercent] = useState(0);
-  const [file, setFile] = useState('')
+  const [file, setFile] = useState("");
   const auth = getAuth();
   const notify = () => toast("Saved!");
 
@@ -31,22 +26,22 @@ export default function Profile({ user }) {
     return () => {
       unsubscribe();
     };
-  }, [user])
+  }, [user]);
 
   const getUserData = async (userEmail) => {
-    if(userEmail) {
+    if (userEmail) {
       const docRef = doc(db, "users", userEmail);
       const docSnap = await getDoc(docRef);
-      
+
       if (docSnap.exists()) {
-        setFirstName(docSnap.data().firstName)
-        setLastName(docSnap.data().lastName)
-        setAbout(docSnap.data().about)
-        setEmail(docSnap.data().email)
-        setPhoto(docSnap.data().url)
+        setFirstName(docSnap.data().firstName);
+        setLastName(docSnap.data().lastName);
+        setAbout(docSnap.data().about);
+        setEmail(docSnap.data().email);
+        setPhoto(docSnap.data().url);
       }
     }
-  }
+  };
 
   const updateUser = async (event) => {
     event.preventDefault();
@@ -55,65 +50,73 @@ export default function Profile({ user }) {
       firstName: firstName,
       lastName: lastName,
       about: about,
-      url: photo ? photo : ""
-    }
+      url: photo ? photo : "",
+    };
     await updateDoc(doc(db, "users", email), data);
-    notify()
-  }
+    notify();
+  };
 
   // Handles input change event and updates state
   function handleChange(event) {
     setFile(event.target.files[0]);
   }
-   
+
   const handleUpload = async () => {
     if (!file) {
-        alert("Please choose a file first!")
+      alert("Please choose a file first!");
     }
 
-    const storageRef = ref(storage, `${file.name}`)
+    const storageRef = ref(storage, `${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-          const percent = Math.round(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
+        const percent = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
 
-          // update progress
-          setPercent(percent);
+        // update progress
+        setPercent(percent);
       },
       (err) => console.log(err),
       () => {
-          // download url
-          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            setPhoto(url);
-          });
+        // download url
+        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+          setPhoto(url);
+        });
       }
     );
-  }
+  };
 
   return (
     <form className="space-y-8 divide-y divide-gray-200" onSubmit={updateUser}>
-      <div> {/*className="space-y-8 divide-y divide-gray-200" */}
-        
+      <div>
+        {" "}
+        {/*className="space-y-8 divide-y divide-gray-200" */}
         <div>
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Profile</h3>
+          <h3 className="text-lg font-medium leading-6 text-gray-900">
+            Profile
+          </h3>
           <p className="mt-1 text-sm text-gray-500">
-            This information will be displayed to your group mates so be careful what you share.
+            This information will be displayed to your group mates so be careful
+            what you share.
           </p>
         </div>
-
         <div className="pt-8">
           <div>
-            <h3 className="text-lg font-medium leading-6 text-gray-900">Personal Information</h3>
+            <h3 className="text-lg font-medium leading-6 text-gray-900">
+              Personal Information
+            </h3>
             {/* <p className="mt-1 text-sm text-gray-500">Use a permanent address where you can receive mail.</p> */}
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             {/* First name */}
             <div className="sm:col-span-3">
-              <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="first-name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 First name
               </label>
               <div className="mt-1">
@@ -131,7 +134,10 @@ export default function Profile({ user }) {
 
             {/* Last name */}
             <div className="sm:col-span-3">
-              <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="last-name"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Last name
               </label>
               <div className="mt-1">
@@ -149,7 +155,10 @@ export default function Profile({ user }) {
 
             {/* Email */}
             <div className="sm:col-span-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <div className="mt-1">
@@ -167,20 +176,32 @@ export default function Profile({ user }) {
 
             {/* Photo */}
             <div className="sm:col-span-6">
-              <label htmlFor="photo" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="photo"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Photo
               </label>
               <div className="mt-1 flex items-center">
                 <span className="h-12 w-12 overflow-hidden rounded-full bg-gray-100">
-                  {
-                    photo ?
-                    <img src={photo} alt="profile pic"/>
-                    : <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                  }
+                  {photo ? (
+                    <img src={photo} alt="profile pic" />
+                  ) : (
+                    <svg
+                      className="h-full w-full text-gray-300"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  )}
                 </span>
-                <input type="file" accept="image/*" onChange={handleChange} className="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"/>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                />
                 <button
                   onClick={handleUpload}
                   type="button"
@@ -188,14 +209,18 @@ export default function Profile({ user }) {
                 >
                   Upload
                 </button>
-                {percent > 0 ? <p className="ml-5 text-green">{percent}%</p> : null}
-                
+                {percent > 0 ? (
+                  <p className="ml-5 text-green">{percent}%</p>
+                ) : null}
               </div>
             </div>
 
             {/* About */}
             <div className="sm:col-span-6">
-              <label htmlFor="about" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="about"
+                className="block text-sm font-medium text-gray-700"
+              >
                 About
               </label>
               <div className="mt-1">
@@ -208,7 +233,9 @@ export default function Profile({ user }) {
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-              <p className="mt-2 text-sm text-gray-500">Write a few sentences about yourself.</p>
+              <p className="mt-2 text-sm text-gray-500">
+                Write a few sentences about yourself.
+              </p>
             </div>
 
             {/* <div className="sm:col-span-3">
@@ -290,15 +317,14 @@ export default function Profile({ user }) {
             </div> */}
           </div>
         </div>
-
         {/* <div className="pt-8"> */}
-          {/* <div>
+        {/* <div>
             <h3 className="text-lg font-medium leading-6 text-gray-900">Notifications</h3>
             <p className="mt-1 text-sm text-gray-500">
               We'll always let you know about important changes, but you pick what else you want to hear about.
             </p>
           </div> */}
-          {/* <div className="mt-6">
+        {/* <div className="mt-6">
             <fieldset>
               <legend className="sr-only">By Email</legend>
               <div className="text-base font-medium text-gray-900" aria-hidden="true">
@@ -412,5 +438,5 @@ export default function Profile({ user }) {
         </div>
       </div>
     </form>
-  )
+  );
 }
