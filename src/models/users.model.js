@@ -9,6 +9,6 @@ export const Users = {
     city,
     state,
     zip,
-    country
-  }
-}
+    country,
+  },
+};

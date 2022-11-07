@@ -5,7 +5,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
-  signOut
+  signOut,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -13,12 +13,12 @@ import {
   getDocs,
   collection,
   where,
-  addDoc
+  addDoc,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import { getStorage } from "firebase/storage";
-import { firebaseConfig } from './config';
+import { firebaseConfig } from "./config";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -45,7 +45,7 @@ const signInWithGoogle = async () => {
     console.error(err);
     alert(err.message);
   }
-}
+};
 
 const logInWithEmailAndPassword = async (email, password) => {
   return await signInWithEmailAndPassword(auth, email, password);
@@ -78,13 +78,14 @@ const sendPasswordReset = async (email) => {
 };
 
 const logout = () => {
-
-  signOut(auth).then(() => {
-    let navigate = useNavigate();
-    navigate('/')
-  }).catch((error) => {
-    console.error(error)
-  });
+  signOut(auth)
+    .then(() => {
+      let navigate = useNavigate();
+      navigate("/");
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 export default storage;
